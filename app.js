@@ -1,33 +1,24 @@
-require('dotenv').config(); // <-- Ye line sabse upar honi chahiye
+require('dotenv').config(); 
 
 const express = require('express');
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const bodyParser = require('body-parser');
-const path = require('path'); // Agar aap static files serve kar rahe hain
+const path = require('path'); 
 const app = express();
 const PORT = 3000;
 
 
-// Environment variables ke liye (ab hardcode nahi karenge secret key)
-// const dotenv = require('dotenv');
-// dotenv.config(); // .env file load karein
 
-// --- MongoDB Connection ---
 const JWT_SECRET = process.env.JWT_SECRET;
 const DB_URI = process.env.DB_URI;
-// *******************************************************************************************************************
-// Apni asli connection string aur password se replace karna na bhoolein!
-// *******************************************************************************************************************
 
 mongoose.connect(DB_URI)
   .then(() => console.log('MongoDB Atlas se successfully connect ho gaye!'))
   .catch(err => console.error('MongoDB Atlas connection error:', err));
 
-// --- Mongoose Schemas aur Models ---
 
-// Product Schema (Existing)
 const productSchema = new mongoose.Schema({
   name: { type: String, required: true },
   price: { type: Number, required: true, min: 0 },
@@ -37,7 +28,7 @@ const productSchema = new mongoose.Schema({
 });
 const Product = mongoose.model('Product', productSchema);
 
-// --- User Schema (Existing) ---
+
 const userSchema = new mongoose.Schema({
   username: {
     type: String,
@@ -59,7 +50,7 @@ const userSchema = new mongoose.Schema({
 });
 const User = mongoose.model('User', userSchema);
 
-// --- Middleware for parsing request bodies ---
+
 app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -110,10 +101,10 @@ app.post('/api/login', async (req, res) => {
     }
 });
 
-// --- JWT Verification Middleware (Existing) ---
+
 const authenticateToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1]; // Corrected split
+    const token = authHeader && authHeader.split(' ')[1]; 
     if (token == null) {
         return res.status(401).json({ message: 'Authentication token missing.' });
     }
@@ -122,25 +113,22 @@ const authenticateToken = (req, res, next) => {
             console.error('JWT verification failed:', err.message);
             return res.status(403).json({ message: 'Invalid ya expired token.' });
         }
-        req.user = user; // Store user payload in req.user
+        req.user = user;
         next();
     });
 };
 
-// --- Protected Route Example (Existing) ---
+
 app.get('/api/protected', authenticateToken, (req, res) => {
     res.json({
         message: 'Ye ek protected resource hai!',
-        user: req.user, // Authenticated user ki details
+        user: req.user, 
         accessTime: new Date().toLocaleString()
     });
 });
 
 
-// --- FULL CRUD API Endpoints (UPDATED: Added authenticateToken to POST, PATCH, DELETE) ---
-
-// CREATE Product (Protected)
-app.post('/api/products', authenticateToken, async (req, res) => { // Added authenticateToken
+app.post('/api/products', authenticateToken, async (req, res) => { 
     try {
         const { name, price, category, description } = req.body;
         const newProduct = new Product({ name, price, category, description });
@@ -155,7 +143,7 @@ app.post('/api/products', authenticateToken, async (req, res) => { // Added auth
     }
 });
 
-// GET All Products (Open)
+
 app.get('/api/products', async (req, res) => {
     try {
         const products = await Product.find({});
@@ -166,11 +154,11 @@ app.get('/api/products', async (req, res) => {
     }
 });
 
-// GET Product by ID (Open)
+
 app.get('/api/products/:id', async (req, res) => {
     try {
         const productId = req.params.id;
-        // Check if ID is a valid MongoDB ObjectId
+
         if (!mongoose.Types.ObjectId.isValid(productId)) {
             return res.status(400).json({ message: 'Invalid Product ID format.' });
         }
@@ -185,8 +173,8 @@ app.get('/api/products/:id', async (req, res) => {
     }
 });
 
-// UPDATE Product (Protected)
-app.patch('/api/products/:id', authenticateToken, async (req, res) => { // Added authenticateToken
+
+app.patch('/api/products/:id', authenticateToken, async (req, res) => { 
     try {
         const productId = req.params.id;
         if (!mongoose.Types.ObjectId.isValid(productId)) {
@@ -210,8 +198,8 @@ app.patch('/api/products/:id', authenticateToken, async (req, res) => { // Added
     }
 });
 
-// DELETE Product (Protected)
-app.delete('/api/products/:id', authenticateToken, async (req, res) => { // Added authenticateToken
+
+app.delete('/api/products/:id', authenticateToken, async (req, res) => { 
     try {
         const productId = req.params.id;
         if (!mongoose.Types.ObjectId.isValid(productId)) {
@@ -237,7 +225,7 @@ if (process.env.NODE_ENV === 'production') {
     });
 }
 
-// 404 Not Found Middleware
+
 app.use((req, res) => {
     res.status(404).send('<h1>404 Page Not Found</h1><p>Maaf kijiye, ye page nahi mila!</p>');
 });
