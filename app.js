@@ -217,14 +217,6 @@ app.delete('/api/products/:id', authenticateToken, async (req, res) => {
 });
 
 
-if (process.env.NODE_ENV === 'production') {
-    app.use(express.static(path.join(__dirname, 'client/build')));
-
-    app.get('*', (req, res) => {
-        res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'));
-    });
-}
-
 
 app.use((req, res) => {
     res.status(404).send('<h1>404 Page Not Found</h1><p>Maaf kijiye, ye page nahi mila!</p>');
