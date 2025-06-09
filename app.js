@@ -51,9 +51,7 @@ const userSchema = new mongoose.Schema({
 });
 const User = mongoose.model('User', userSchema);
 
-app.use(cors(
-    {origin:['http://localhost:3000', 'https://first-mernapp.vercel.app/']}
-));
+app.use(cors());
 app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
