@@ -61,7 +61,7 @@ app.use(express.json());
 
 app.use(express.static('public'));
 
-app.post('/api/signup', async (req, res) => {
+app.post('/api/register', async (req, res) => {
     try {
         const { username, email, password } = req.body;
         const existingUser = await User.findOne({ $or: [{ username }, { email }] });
